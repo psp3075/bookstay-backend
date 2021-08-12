@@ -52,3 +52,39 @@ export const sellerHotels = async (req, res) => {
     .exec();
   res.send(all);
 };
+
+export const deleteHotel = async (req, res) => {
+  await Hotel.findByIdAndDelete(req.params.hotelId).exec();
+  res.json({ ok: true });
+};
+
+export const showMore = async (req, res) => {
+  let hotel = await Hotel.findById(req.params.hotelId)
+    .populate("postedBy", "_id name")
+    .select("-image.data")
+    .exec();
+  res.json(hotel);
+};
+
+export const updateHotel = async (req, res) => {
+  let fields = req.fields;
+  let files = req.files;
+  let data = { ...fields };
+  console.log(fields, files);
+
+  if (files.image) {
+    let image = {};
+    image.data = fs.readFileSync(files.image.path);
+    image.contentType = files.image.type;
+
+    data.image = image;
+  }
+  try {
+    let updated = await Hotel.findByIdAndUpdate(req.params.hotelId, data, {
+      new: true,
+    }).select("-image.data");
+    res.json(updated);
+  } catch (err) {
+    console.log(err);
+  }
+};
