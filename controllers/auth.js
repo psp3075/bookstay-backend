@@ -25,12 +25,12 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   // console.log(req.body);
-  const { email, password } = req.body;
-  let user;
   try {
+    const { email, password } = req.body;
+    let user;
     user = await User.findOne({ email }).exec();
     // console.log("USER", user);
-    if (!user) res.status(400).send("User doesn't exist");
+    if (!user) return res.status(400).send("User doesn't exist");
 
     user.comparePassword(password, (err, match) => {
       // console.log("compare password", err);
